@@ -1,14 +1,19 @@
+rm(list = ls())
 # import data set
-library(readr)
-red_wines <- read_delim("red_wines.csv", ";", escape_double = FALSE, trim_ws = TRUE)
-white_wines <- read_delim("white_wines.csv", ";", escape_double = FALSE, trim_ws = TRUE)
+red_wines = read.csv("red_wines.csv", sep = ";")
+white_wines = read.csv("white_wines.csv", sep = ";")
 
 # standardize data to a zero mean and one standard deviation
-reds <- scale(red_wines[,(1:11)])
-reds <- as.data.frame(reds)
-whites <-scale(white_wines[,(1:11)])
-whites <- as.data.frame(whites)
 
-# Multiple Linear Regression
-reds_MR <- lm(formula = red_wines$quality ~ ., data = reds)
-whites_MR <- lm(formula = white_wines$quality ~ ., data = whites)
+red_wines[,(1:11)] <- scale(red_wines[,(1:11)])
+white_wines[,(1:11)] <- scale(white_wines[,(1:11)])
+
+
+# 5-fold cross-validation with 20 runs
+require(caret)
+train_control <-trainControl(method = "repeatedcv", number = 5, repeats = 20)
+
+# Multiple Regression (error: invalid subscript type 'language' - not sure what this means)
+reds_MR <- train(formula = quality ~ ., data = red_wines, trControl = train_control, method = "lm")
+whites_MR <- train(formula = quality ~ ., data = white_wines, trControl = train_control, method = "lm")
+
