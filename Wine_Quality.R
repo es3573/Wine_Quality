@@ -42,3 +42,24 @@ reds_nnet_R2 <- mean(reds_nnet$results$Rsquared)
 whites_nnet_R2 <- mean(whites_nnet$results$Rsquared)
 reds_SVM_R2 <- mean(reds_SVM$results$Rsquared)
 whites_SVM_R2 <- mean(whites_SVM$results$Rsquared)
+
+# Classification accuracy
+
+# Modify the numeric target to categorical target
+red_wines$quality <- as.factor(red_wines$quality)
+white_wines$quality <- as.factor(white_wines$quality)
+
+
+# Multiple Regression 
+reds_MR <- train(quality ~ ., data = red_wines, method = "lm", trControl = train_control)
+whites_MR <- train(quality ~ ., data = white_wines, method = "lm", trControl = train_control)
+
+# nnet 
+reds_nnet <-train(quality ~ ., data = red_wines, method = "nnet", trControl = train_control, linout = TRUE)
+whites_nnet <-train(quality ~ . , data = white_wines, method = "nnet", trControl = train_control, linout = TRUE)
+
+# Gaussian SVM
+reds_SVM <-train(quality ~., data = red_wines, method = "svmRadial", trControl = train_control)
+whites_SVM <-train(quality ~., data = white_wines, method = "svmRadial", trControl = train_control)
+
+
