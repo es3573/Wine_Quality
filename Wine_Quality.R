@@ -135,10 +135,3 @@ whites_SVM <- mining(quality ~ ., data = white_wines, runs = 20, method = c("kfo
 # print(mmetric(whites_SVM, metric = "TOLERANCE", val = 0.25))
 # print(mmetric(whites_SVM, metric = "TOLERANCE", val = 0.5))
 # print(mmetric(whites_SVM, metric = "TOLERANCE", val = 1))
-
-
-
-
-
-
-
