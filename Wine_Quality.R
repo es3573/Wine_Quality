@@ -17,7 +17,7 @@ white_wines_test = white_wines[H_white$ts,]
 
 
 # create results table
-results <- matrix(data = NA, nrow = 5, ncol = 6)
+results <- matrix(data = NA, nrow = 6, ncol = 6)
 colnames(results) <- c('rw_MR', 'rw_NN', 'rw_SVM', 'ww_MR', 'ww_NN', 'ww_SVM')
 rownames(results) <- c('MAE', 'Accuracy_0.25', 'Accuracy_0.5', 'Accuracy_1', 'Kappa_0.5')
 
@@ -87,20 +87,68 @@ store_predictions <- function(model, runs, folds, nobs, training, test){
 
 ################################ Multiple Regression ################################ 
 results <- custom_kfold(results, "mr", 20, 5, 1, 4)
-reds_MR <- mining(quality ~ ., data = red_wines, runs = 20, method = c("kfold", 5, 123), model = "mr", task = "reg")
-whites_MR <- mining(quality ~ ., data = white_wines, runs = 20, method = c("kfold", 5, 123), model = "mr", task = "reg")
+
+# Number of inputs
+white_MR_feats <- 0
+for (i in 1:20){white_MR_feats = white_MR_feats +  length(white_MR_reg[["attributes"]][[i]])}
+white_MR_input <- white_MR_feats/20
+
+red_MR_feats <- 0
+for (i in 1:20){red_MR_feats = red_MR_feats +  length(red_MR_reg[["attributes"]][[i]])}
+red_MR_input <- red_MR_feats/20
 
 ################################ Neural Net ################################ 
 results <- custom_kfold(results, "mlp", 20, 5, 2, 5)
-reds_nnet <- mining(quality ~ ., data = red_wines, runs = 20, method = c("kfold", 5, 123), model = "mlp", task = "reg")
-whites_nnet <- mining(quality ~ ., data = white_wines, runs = 20, method = c("kfold", 5, 123), model = "mlp", task = "reg")
+
+# Number of inputs
+white_nnet_feats <- 0
+for (i in 1:20){white_nnet_feats = white_nnet_feats +  length(white_nnet_reg[["attributes"]][[i]])}
+white_nnet_input <- white_nnet_feats/20
+
+red_nnet_feats <- 0
+for (i in 1:20){red_nnet_feats = red_nnet_feats +  length(red_nnet_reg[["attributes"]][[i]])}
+red_nnet_input <- red_nnet_feats/20
 
 ################################  SVM ################################ 
 results <- custom_kfold(results, "svm", 20, 5, 3, 6)
-reds_SVM <- mining(quality ~ ., data = red_wines, runs = 20, method = c("kfold", 5, 123), model = "svm", task = "reg")
-whites_SVM <- mining(quality ~ ., data = white_wines, runs = 20, method = c("kfold", 5, 123), model = "svm", task = "reg")
+
+red_SVM_reg=mining(quality ~ ., data = red_wines,Runs=20,method=c("holdout",2/3,12345),model="svm", task = "reg",
+                   search=list(search=mparheuristic("ksvm",lower = -2, upper = 7, by = 1),method=c("kfold",5,123),metric="MAE"),
+                   feature="sabsv")
+
+white_SVM_reg=mining(quality ~ ., data = white_wines,Runs=20,method=c("holdout",2/3,12345),model="svm", task = "reg",
+                     search=list(search=mparheuristic("ksvm",lower = -2, upper = 7, by = 1),method=c("kfold",5,123),metric="MAE"),
+                     feature="sabsv")
+# Number of inputs
+red_SVM_feats <- 0
+for (i in 1:20){red_SVM_feats = red_SVM_feats +  length(red_SVM_reg[["attributes"]][[i]])}
+red_SVM_input <- red_SVM_feats/20
+
+white_SVM_feats <- 0
+for (i in 1:20){white_SVM_feats = white_SVM_feats +  length(white_SVM_reg[["attributes"]][[i]])}
+white_SVM_input <- white_SVM_feats/20
+
+# compute sigma for SVM
+red_SVM_sigma <- 0
+for (i in 1:20){red_SVM_sigma = red_SVM_sigma + red_SVM_reg$mpar[[i]]$kpar$sigma}
+red_SVM_gamma <- 1/(2*(red_SVM_sigma/20)**2)
+
+white_SVM_sigma <- 0
+for (i in 1:20){white_SVM_sigma = white_SVM_sigma + white_SVM_reg$mpar[[i]]$kpar$sigma}
+white_SVM_gamma <- 1/(2*(white_SVM_sigma/20)**2)
+
 
 ################################  Figures ################################
+
+# Bar plot of importance of features
+red_imp  = sort(colMeans(red_SVM_reg$sen)[1:11])
+red_bp = barplot(red_imp, main="Red Wine", horiz=TRUE, col = 'white')
+text(x=red_imp, y = red_bp, labels=colnames(red_wines)[order(colMeans(red_SVM_reg$sen))][2:12], cex = 0.6, xpd = TRUE, pos = 2)
+
+white_imp  = sort(colMeans(white_SVM_reg$sen)[1:11])
+white_bp = barplot(white_imp, main="white Wine", horiz=TRUE, col = 'white')
+text(x=white_imp, y = white_bp, labels=colnames(white_wines)[order(colMeans(white_SVM_reg$sen))][2:12], cex = 0.6, xpd = TRUE, pos = 2)
+
 
 # histograms of quality
 hist(red_wines$quality)
