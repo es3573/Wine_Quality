@@ -88,26 +88,42 @@ store_predictions <- function(model, runs, folds, nobs, training, test){
 ################################ Multiple Regression ################################ 
 results <- custom_kfold(results, "mr", 20, 5, 1, 4)
 
-# Number of inputs
-white_MR_feats <- 0
-for (i in 1:20){white_MR_feats = white_MR_feats +  length(white_MR_reg[["attributes"]][[i]])}
-white_MR_input <- white_MR_feats/20
+red_MR_reg=mining(quality ~ ., data = red_wines,Runs=20,method=c("holdout",2/3,12345),model="mr", task = "reg",
+                   search=list(search=mparheuristic("ksvm",lower = -2, upper = 7, by = 1),method=c("kfold",5,123),metric="MAE"),
+                   feature="sabsv")
 
+white_MR_reg=mining(quality ~ ., data = white_wines,Runs=20,method=c("holdout",2/3,12345),model="mr", task = "reg",
+                     search=list(search=mparheuristic("ksvm",lower = -2, upper = 7, by = 1),method=c("kfold",5,123),metric="MAE"),
+                     feature="sabsv")
+
+# Number of inputs
 red_MR_feats <- 0
 for (i in 1:20){red_MR_feats = red_MR_feats +  length(red_MR_reg[["attributes"]][[i]])}
 red_MR_input <- red_MR_feats/20
 
+white_MR_feats <- 0
+for (i in 1:20){white_MR_feats = white_MR_feats +  length(white_MR_reg[["attributes"]][[i]])}
+white_MR_input <- white_MR_feats/20
+
 ################################ Neural Net ################################ 
 results <- custom_kfold(results, "mlp", 20, 5, 2, 5)
 
-# Number of inputs
-white_nnet_feats <- 0
-for (i in 1:20){white_nnet_feats = white_nnet_feats +  length(white_nnet_reg[["attributes"]][[i]])}
-white_nnet_input <- white_nnet_feats/20
+red_nnet_reg=mining(quality ~ ., data = red_wines,Runs=20,method=c("holdout",2/3,12345),model="mlp", task = "reg",
+                  search=list(search=mparheuristic("ksvm",lower = -2, upper = 7, by = 1),method=c("kfold",5,123),metric="MAE"),
+                  feature="sabsv")
 
+white_nnet_reg=mining(quality ~ ., data = white_wines,Runs=20,method=c("holdout",2/3,12345),model="mlp", task = "reg",
+                    search=list(search=mparheuristic("ksvm",lower = -2, upper = 7, by = 1),method=c("kfold",5,123),metric="MAE"),
+                    feature="sabsv")
+
+# Number of inputs
 red_nnet_feats <- 0
 for (i in 1:20){red_nnet_feats = red_nnet_feats +  length(red_nnet_reg[["attributes"]][[i]])}
 red_nnet_input <- red_nnet_feats/20
+
+white_nnet_feats <- 0
+for (i in 1:20){white_nnet_feats = white_nnet_feats +  length(white_nnet_reg[["attributes"]][[i]])}
+white_nnet_input <- white_nnet_feats/20
 
 ################################  SVM ################################ 
 results <- custom_kfold(results, "svm", 20, 5, 3, 6)
