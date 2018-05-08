@@ -26,3 +26,14 @@ for (i in 1:11){
 colnames(white_wines)[order(white_p_value)]
 
 
+######################### importance graph ##############################
+
+
+red_imp  = sort(log(red_p_value))
+red_bp = barplot(red_imp[11:1], main="red Wine", horiz=TRUE, col = 'white')
+text(x=red_imp[11:1], y = red_bp, labels=colnames(red_wines)[order(log(red_p_value))][11:1], cex = 0.6, xpd = TRUE, pos = 2)
+
+white_imp  = sort(log(white_p_value))
+white_bp = barplot(white_imp[11:1], main="white Wine", horiz=TRUE, col = 'white')
+text(x=white_imp[11:1], y = white_bp, labels=colnames(white_wines)[order(log(white_p_value))][11:1], cex = 0.6, xpd = TRUE, pos = 2)
+
