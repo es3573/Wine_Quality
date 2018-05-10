@@ -1,3 +1,8 @@
+################################ Summary ################################
+# This file is solely for the reproduction of results in the study. It covers the 
+# multiple linear regression, multilayer perceptron, and kernel SVM models in
+# a regression approach to modeling the Wine data sets. 
+
 require(rminer)
 rm(list = ls())
 # Import data set
@@ -217,7 +222,7 @@ results[7,3] <- round(red_SVM_gamma,2)
 white_SVM_sigma <- 0
 for (i in 1:20){white_SVM_sigma = white_SVM_sigma + white_SVM_reg$mpar[[i]]$kpar$sigma}
 white_SVM_gamma <- 1/(2*(white_SVM_sigma/20)**2)
-results[7,6] <- white_SVM_gamma
+results[7,6] <- round(white_SVM_gamma,2)
 
 ################################  Figures ################################
 
@@ -300,7 +305,7 @@ rownames(confusion_white_1) <- c(min(unique(white_wines$quality)):max(unique(whi
 colnames(confusion_white_1) <- c(min(unique(P_white_SVM_c)):max(unique(P_white_SVM_c)))
 print(as.table(confusion_white_1))
 
-################################  New Approaches  ################################
+
 
 
 
