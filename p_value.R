@@ -1,3 +1,6 @@
+# This file focuses on the univariate linear regression model
+# used to estimate the relative importance of features in the data set
+
 # import data set
 red_wines = read.csv("red_wines.csv", sep = ";")
 white_wines = read.csv("white_wines.csv", sep = ";")
@@ -8,7 +11,7 @@ white_wines[,(1:11)] <- scale(white_wines[,(1:11)])
 
 ################ univariate linear regression p-value ##################
 
-
+# model each feature using lm() one at a time and store values
 red_p_value <- vector("numeric", 11)
 for (i in 1:11){
   model <- lm(red_wines$quality ~ red_wines[,i])
@@ -28,7 +31,7 @@ colnames(white_wines)[order(white_p_value)]
 
 ######################### importance graph ##############################
 
-
+# sort and plot the p-values generated
 red_imp  = sort(log(red_p_value))
 red_bp = barplot(red_imp[11:1], main="red Wine", horiz=TRUE, col = 'white', xlab = 'logspace of p-value', ylab = 'features')
 text(x=red_imp[11:1], y = red_bp, labels=colnames(red_wines)[order(log(red_p_value))][11:1], cex = 0.6, xpd = TRUE, pos = 2)
