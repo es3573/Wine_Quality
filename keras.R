@@ -1,3 +1,5 @@
+# This file focuses on the Keras package's Neural Network model
+
 require(rminer)
 rm(list = ls())
 # import data set
@@ -17,14 +19,14 @@ white_wines_test = white_wines[H_white$ts,]
 
 library(keras)
 
-# Get the one-hot encode of y
+# Get the one-hot encoding of y
 red_y_train <- to_categorical(red_wines_train$quality-3, 6)
 red_y_test <- to_categorical(red_wines_test$quality-3, 6)
 
 white_y_train <- to_categorical(white_wines_train$quality-3, 7)
 white_y_test <- to_categorical(white_wines_test$quality-3, 7)
 
-# drop label for each data
+# drop labels for each data
 red_x_train <- red_wines_train[,(1:11)]
 red_x_test <- red_wines_test[,(1:11)]
 
@@ -37,7 +39,7 @@ red_x_test <- t(t(array(red_x_test)))
 white_x_train <- t(t(array(white_x_train)))
 white_x_test <- t(t(array(white_x_test)))
 
-
+# set the model parameters based off relu and softmax activations
 red_model <- keras_model_sequential() 
 red_model %>% 
   layer_dense(units = 24, activation = 'relu', input_shape = 11) %>% 
@@ -48,20 +50,24 @@ red_model %>%
 
 summary(red_model)
 
+# compile the model
 red_model %>% compile(
   loss = 'categorical_crossentropy',
   optimizer = 'adam',
   metrics = "accuracy"
 )
 
+# store values computed by fit()
 history <- red_model %>% fit(
   red_x_train, red_y_train, 
   epochs = 30, batch_size = 10,
   validation_split = 0.2
 )
 
+# evaluate the model
 red_model %>% evaluate(red_x_test, red_y_test)
 
+# repeat the same for the white data set
 white_model <- keras_model_sequential() 
 white_model %>% 
   layer_dense(units = 30, activation = 'relu', input_shape = 11) %>% 
