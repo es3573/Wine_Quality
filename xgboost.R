@@ -1,7 +1,12 @@
+# This file focuses on the XGBoost model implementation for our data sets
+
 require(xgboost)
 
 require(rminer)
 rm(list = ls())
+
+# This creates a confusion matrix based off the predictions against the
+# true classes
 confusion <- function(predictions, truth){
   n_truth_classes <- length(unique(truth))
   n_pred_classes <- length(unique(predictions))
@@ -45,6 +50,7 @@ red_wines = read.csv("red_wines.csv", sep = ";")
 white_wines = read.csv("white_wines.csv", sep = ";")
 
 # standardize data to a zero mean and one standard deviation
+# split the data into test/training sets using holdout
 red_wines[,(1:11)] <- scale(red_wines[,(1:11)])
 H_red = holdout(1:1599, ratio = 2/3, internalsplit = TRUE)
 red_wines_train_val = red_wines[H_red$tr,]
@@ -87,18 +93,20 @@ white_y_train <- white_wines_train$quality
 white_y_test <- white_wines_test$quality
 white_y_val <- white_wines_val$quality
 
-################## red ##################
+################## red wine XGBoost ##################
+
+# create a XGBoost model 
 red_boost <- xgboost(data = red_x_train, label = red_y_train-3, max.depth = 2, eta = .01,
                      nthread = 2, nround = 16000, objective = "multi:softmax", num_class = 6)
 
-# validation predict
+# validation predictions
 red_val_pred <- predict(red_boost, red_x_val)
 
 # validation accuracy
 red_val_acc <- mean(red_val_pred == red_y_val-3)
 print(red_val_acc)
 
-# test predict
+# test predictions
 red_pred <- predict(red_boost, red_x_test)
 
 # test accuracy
@@ -108,7 +116,7 @@ print(red_acc)
 # test MAE
 mmetric(red_pred, red_y_test-3, metric = "MAE")
 
-#importance graph
+# importance graphs
 red_importance_matrix <- xgb.importance(model = red_boost)
 red_imp  = red_importance_matrix$Gain
 red_bp = barplot(red_imp[11:1], main="red Wine", horiz=TRUE, col = 'white')
@@ -121,13 +129,13 @@ print(as.table(confusion_white_1))
 
 
 
-################## white ##################
+################## white wine XGBoost ##################
 white_boost <- xgboost(data = white_x_train, label = white_y_train-3, max.depth = 2, eta = .05,
                      nthread = 2, nround = 50000, objective = "multi:softmax", num_class = 6)
 
 white_pred <- predict(white_boost, white_x_test)
 
-# validation predict
+# validation predictions
 white_val_pred <- predict(white_boost, white_x_val)
 
 # validation accuracy
